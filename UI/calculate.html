@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="refresh"content="10; url=result.html">
+<meta charset="utf-8">
+<title>Meeting Evaluation System</title>
+<link rel="stylesheet" href="meetingevaluationsystem.css">
+<style>
+</style>
+</head>
+<body>
+<p>計算中</p>
+<progress></progress>
+<span id="percentage"></span>
+<script>
+var progress = document.getElementsByTagName("progress")[0];
+var percentage = document.getElementById("percentage");
+  
+progress.max = 100;
+progress.value = 0;
+var timer = setInterval(function() {
+progress.value += 5;
+ 
+ var percent = progress.position*100;
+ 
+if (progress.value >= progress.max) {
+	percent = 100;
+	clearInterval(timer);
+}
+percentage.textContent = progress.textContent = percent + "%";}, 500);
+</script>
+</body>
+</html>

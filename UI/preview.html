@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<video id="video" autoplay controls></video>
+<script type="text/javascript">
+navigator.getMedia = (
+	navigator.getUserMedia ||
+	navigator.webkitGetUserMedia ||
+	navigator.mozGetUserMedia ||
+	navigator.msGetUserMedia
+	);
+	if (navigator.getMedia) {
+		var prop = {
+			video: true,
+			audio: false,
+			toString: function() {
+				return 'video, audio';
+			}
+        };
+        navigator.getMedia(
+			prop,
+			onStream,
+			onStreamFailed
+		);
+	} else {
+		alert('エラー: getUserMediaがサポートされていません');
+	}
+	function onStream(stream) {
+		if (!window.URL) {
+			window.URL = {};
+			window.URL.createObjectURL = function(obj) { return obj; };
+		}
+	var video = document.getElementById('video');
+	video.src = window.URL.createObjectURL(stream);
+}
+function onStreamFailed(err) {
+	console.error('エラー: ' + err);
+}
+</script>
+<p>机の四隅が入るようにカメラの位置を調整してください</p>
+<p><a href="calibration.html">音声の設定</a></p>
+</body>
+</html>

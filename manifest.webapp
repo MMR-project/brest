@@ -12,5 +12,10 @@
 		"url": "https://github.com/MMR-project/"
 	},
 	"default_locale": "ja",
-	"fullscreen": "true"
+	"fullscreen": "true",
+	"installs_allowed_from": [
+		"https://marketplace.firefox.com",
+		"https://mmr-project.github.io"
+	],
+	"package_path": "https://github.com/MMR-project/brest/archive/master.zip",
 }

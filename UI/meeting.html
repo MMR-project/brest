@@ -7,9 +7,194 @@
 <style>
 </style>
 </head>
-<body>
+
+<script type="text/javascript">
+
+
+var video;
+var canvas;
+var context;
+var imageFilter;
+var imageMemory;
+var frameNumberForFPS = 0;
+var frameNumber = 0;
+var startTime = null;
+
+var requestID;
+
+var numFrame = 0;
+
+//過去の画像を保存するためのクラス
+function ImageMemory(iwidth, iheight){
+  console.log(iwidth + "*" + iheight);
+  this.iwidth = iwidth;
+  this.iheight = iheight;
+  this.numPixel = iwidth*iheight;
+  this.threshPixels = new Array(this.numPixel);
+  this.lastPixels = new Array(this.numPixel);
+  for(var i=0; i< this.numPixel; i++){
+    this.threshPixels[i] = 0;
+    this.lastPixels[i] = 0;
+  }
+}
+
+navigator.getMedia = (
+	navigator.getUserMedia ||
+	navigator.webkitGetUserMedia ||
+	navigator.mozGetUserMedia ||
+	navigator.msGetUserMedia
+	);
+	if (navigator.getMedia) {
+		var prop = {
+			video: true,
+			audio: false,
+			toString: function() {
+				return 'video, audio';
+			}
+        };
+        navigator.getMedia(
+			prop,
+			onStream,
+			onStreamFailed
+		);
+	} else {
+		alert('エラー: getUserMediaがサポートされていません');
+	}
+	function onStream(stream) {
+		if (!window.URL) {
+			window.URL = {};
+			window.URL.createObjectURL = function(obj) { return obj; };
+		}
+	video = document.getElementById('video');
+	//video = document.querySelector('video');
+	video.src = window.URL.createObjectURL(stream);
+	video.play();
+}
+function onStreamFailed(err) {
+	console.error('エラー: ' + err);
+}
+
+
+//ロード時に呼ばれる関数
+function onLoad(){
+
+  setFilter(dif);
+  canvas = document.querySelector("canvas");
+  context = canvas.getContext("2d");
+  update();
+}
+
+
+//フレームの処理
+function update(){
+  processVideoFrame();
+  
+  frameNumberForFPS++;
+  if (startTime == null)
+    startTime = (new Date).getTime(); // in milliseconds  
+  // Every 60 frames calculate our actual framerate and display it
+  if (frameNumberForFPS >= 60) {
+      var currentTime = (new Date).getTime();            // in milliseconds
+      var deltaTime = (currentTime - startTime)/1000.0;  // in seconds
+
+      document.querySelector("#fps").innerHTML = (Math.floor(frameNumberForFPS/deltaTime) + " fps");
+      startTime = currentTime;
+      frameNumberForFPS = 0;
+  }		   
+  
+  
+  requestID = requestAnimationFrame(update); 
+}
+
+//画像処理のフィルタをセットする関数
+function setFilter(f) {
+  frameNumber = -1;
+  imageFilter = f;
+}
+
+//画像を処理する関数
+function processImage() {
+  if (canvas.width > 0 && canvas.height > 0) {
+    if (imageFilter) {      
+      context.putImageData(imageFilter.apply(null, [context.getImageData(0, 0, 
+        canvas.width, canvas.height)]), 0, 0);
+    }
+  }
+}
+
+// filter to make difference
+dif = function (pixels, args) {
+
+  //Sleep(1000);
+
+  var d = pixels.data;
+  var avg = 0;
+  var count = 0;
+  if(frameNumber <= 0){
+      console.log("init");
+    for (var i = 0; i < imageMemory.numPixel; i ++) {
+      imageMemory.lastPixels[i] = d[4 * i + 1];
+    }
+  }
+  else{
+    for (var i = 0; i < imageMemory.numPixel; i ++) {
+      var pixVal = d[4 * i + 1];
+      var dl = Math.abs(pixVal - imageMemory.lastPixels[i]);
+      imageMemory.lastPixels[i] = pixVal;
+      dl -= imageMemory.threshPixels[i];
+      if(dl < 0){
+        dl = 0;
+      }
+      else{
+        count++;
+      }
+      d[4 * i] = dl;
+      d[4 * i + 1] = dl;
+      d[4 * i + 2] = dl;
+      avg += dl;
+    }
+  }
+  if(count > imageMemory.numPixel * 0.1){
+     document.getElementById("resultText").value += 1 + ",";
+  }
+  else{
+      document.getElementById("resultText").value += 0 + ",";
+  }
+  frameNumber ++;
+  return pixels;
+};
+
+
+//動画の処理を行う関数
+function processVideoFrame() {
+
+  if (context && video != null && video.videoWidth > 0 && video.videoHeight > 0) {
+    // Resize the canvas to match the current video dimensions
+    if( imageMemory == null){
+      imageMemory = new ImageMemory(video.videoWidth, video.videoHeight);
+    }
+    if (canvas.width != video.videoWidth) 
+      canvas.width = video.videoWidth;
+    if (canvas.height != video.videoHeight) 
+      canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    processImage(canvas); 
+  }
+}
+
+
+
+</script>
+
+<body onload="onLoad();">
 <p>会議中</p>
 <p><progress max="100"></progress></p>
 <p><a href="questionnaire.html">終了</a></p>
+<p><textarea id="resultText" cols="100" rows="5"></textarea></p>
+<p><video id="video" autoplay controls></video></p>
+<!--<video id="video" style="display:none;"></video>-->
+<canvas width="640" height="480" style="border:1px solid black;"/>
+<span id="fps"></span>
 </body>
 </html>

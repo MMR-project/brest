@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta http-equiv="refresh"content="10; url=result.html">
+<meta http-equiv="refresh"content="5; url=result.html">
 <meta charset="utf-8">
 <title>Meeting Evaluation System</title>
 <link rel="stylesheet" href="meetingevaluationsystem.css">
@@ -19,9 +19,9 @@ var percentage = document.getElementById("percentage");
 progress.max = 100;
 progress.value = 0;
 var timer = setInterval(function() {
-progress.value += 5;
+progress.value += 10;
  
- var percent = progress.position*100;
+var percent = progress.position*100;
  
 if (progress.value >= progress.max) {
 	percent = 100;

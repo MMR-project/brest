@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="meetingevaluationsystem.css">
 <style>
 </style>
-<script type="text/javascript" src="js/radar.js"></script>
 <script>
 window.onload = function(){
 	sumrange01 = 0;
@@ -49,17 +48,8 @@ window.onload = function(){
 		range02.value = 50;
 		range03.value = 50;
 		range04.value = 50;
-
-		var rc = new html5jp.graph.radar("sample");
-		if( ! rc ) { return; }
-		var items = [
-			["主観評価", averagerange01, averagerange02, averagerange03, averagerange04]
-		];
-		var params = {
- 			aCap: ["新規性", "発言できた", "深い議論", "本音"],
- 			aMax: 100
-		}
-		rc.draw(items, params);
+		
+		location.href = "result.html?data="+encodeURIComponent(averagerange01+","+averagerange02+","+averagerange03+","+averagerange04);
 	}
 
 	// 初期設定
@@ -79,7 +69,5 @@ window.onload = function(){
 <input id="range04" type="range" min="0" max="100" step="1" value="50"/>
 <p><input type="button" value="次の人へ" id="cde" /></p>
 <p><input type="button" value="最後の人はこっちを押す" id="finish" /></p>
-<div><canvas width="400" height="300" id="sample"></canvas></div>
-<p><a href="calculate.html">計算へ</a></p>
 </body>
 </html>
